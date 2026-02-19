@@ -1,0 +1,9 @@
+# Configuration Environment Template
+
+# API Keys
+API_KEY_1=""
+API_KEY_2=""
+
+# Runtime Settings
+RUN_MODE="development"
+DB_CONNECTION_STRING=""
