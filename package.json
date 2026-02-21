@@ -1,0 +1,20 @@
+{
+  "name": "staff-engineer-auto",
+  "version": "1.0.0",
+  "description": "Productivity and automation tool for software engineering workflows",
+  "type": "module",
+  "main": "src/github_integration/index.js",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "dependencies": {
+    "@octokit/app": "^16.1.2",
+    "@octokit/rest": "^22.0.1"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0"
+  },
+  "overrides": {
+    "minimatch": "^10.2.1"
+  }
+}
