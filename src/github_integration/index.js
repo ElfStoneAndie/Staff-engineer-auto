@@ -20,6 +20,16 @@ export async function createInstallationClient(config) {
 }
 
 /**
+ * Creates an authenticated Octokit instance using a Personal Access Token (PAT).
+ *
+ * @param {string} token - GitHub Personal Access Token (GITHUB_TOKEN)
+ * @returns {Octokit} Authenticated Octokit instance
+ */
+export function createPATClient(token) {
+  return new Octokit({ auth: token });
+}
+
+/**
  * Lists the contents of a repository directory.
  *
  * @param {Octokit} octokit - Authenticated Octokit instance

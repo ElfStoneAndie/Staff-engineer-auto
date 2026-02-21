@@ -8,13 +8,15 @@ const mockGetInstallationOctokit = jest.fn().mockResolvedValue(mockOctokit);
 const MockApp = jest.fn().mockImplementation(() => ({
   getInstallationOctokit: mockGetInstallationOctokit,
 }));
+const MockOctokit = jest.fn().mockImplementation(() => mockOctokit);
 
 // Must be called before the module under test is imported
 jest.unstable_mockModule('@octokit/app', () => ({ App: MockApp }));
-jest.unstable_mockModule('@octokit/rest', () => ({ Octokit: jest.fn() }));
+jest.unstable_mockModule('@octokit/rest', () => ({ Octokit: MockOctokit }));
 
 const {
   createInstallationClient,
+  createPATClient,
   listContents,
   readFile,
   writeFile,
@@ -44,6 +46,7 @@ function buildRestMocks() {
 beforeEach(() => {
   buildRestMocks();
   MockApp.mockClear();
+  MockOctokit.mockClear();
   mockGetInstallationOctokit.mockClear();
 });
 
@@ -57,6 +60,17 @@ describe('createInstallationClient', () => {
     expect(MockApp).toHaveBeenCalledWith(
       expect.objectContaining({ appId: '1', privateKey: 'pem' }),
     );
+    expect(client).toBe(mockOctokit);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// createPATClient
+// ---------------------------------------------------------------------------
+describe('createPATClient', () => {
+  it('returns an Octokit instance authenticated with the given token', () => {
+    const client = createPATClient('my-token');
+    expect(MockOctokit).toHaveBeenCalledWith({ auth: 'my-token' });
     expect(client).toBe(mockOctokit);
   });
 });

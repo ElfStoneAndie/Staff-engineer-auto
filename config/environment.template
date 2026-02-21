@@ -8,7 +8,11 @@ API_KEY_2=""
 RUN_MODE="development"
 DB_CONNECTION_STRING=""
 
-# GitHub App Integration
+# GitHub Authentication
+# Option A – Personal Access Token (PAT)
+GITHUB_TOKEN=""
+
+# Option B – GitHub App Integration
 GITHUB_APP_ID=""
 GITHUB_APP_PRIVATE_KEY=""
 GITHUB_APP_INSTALLATION_ID=""
