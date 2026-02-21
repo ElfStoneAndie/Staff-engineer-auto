@@ -20,7 +20,7 @@ Set the following variables in your environment (see `config/environment.templat
 Returns an authenticated `Octokit` instance scoped to a specific installation.
 
 ```js
-const { createInstallationClient } = require('./src/github_integration');
+import { createInstallationClient } from './src/github_integration/index.js';
 
 const octokit = await createInstallationClient({
   appId: process.env.GITHUB_APP_ID,
