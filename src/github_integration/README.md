@@ -8,12 +8,23 @@ Set the following variables in your environment (see `config/environment.templat
 
 | Variable | Description |
 |---|---|
+| `GITHUB_TOKEN` | Personal Access Token for PAT-based authentication |
 | `GITHUB_APP_ID` | The numeric ID of your GitHub App |
 | `GITHUB_APP_PRIVATE_KEY` | The PEM-encoded private key for your GitHub App |
 | `GITHUB_APP_INSTALLATION_ID` | The installation ID for the target repository/org |
 | `GITHUB_APP_WEBHOOK_SECRET` | The webhook secret configured for your GitHub App |
 
 ## API
+
+### `createPATClient(token)`
+
+Returns an authenticated `Octokit` instance using a Personal Access Token.
+
+```js
+import { createPATClient } from './src/github_integration/index.js';
+
+const octokit = createPATClient(process.env.GITHUB_TOKEN);
+```
 
 ### `createInstallationClient(config)`
 
@@ -68,6 +79,13 @@ Opens a pull request from `head` into `base`.
 ```js
 await createPullRequest(octokit, 'owner', 'repo', 'My PR', 'feature/my-feature', 'main', 'Description');
 ```
+
+## Setting Up a Personal Access Token (PAT)
+
+1. Go to **Settings → Developer settings → Personal access tokens** and click **Generate new token**.
+2. Select the required scopes: `repo` (for private repos) or `public_repo` (for public repos).
+3. Copy the generated token and set it as `GITHUB_TOKEN` in your environment.
+4. Use `createPATClient(process.env.GITHUB_TOKEN)` to obtain an authenticated client.
 
 ## Setting Up a GitHub App
 
