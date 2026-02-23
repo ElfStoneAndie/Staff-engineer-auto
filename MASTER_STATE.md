@@ -11,7 +11,9 @@
 
 ### Up Next (Phase 2)
 - [ ] TTS Premium Voices — integrate diverse voice options, optimise voice quality
+  - Stub + tests scaffolded in `src/tts/premium.js` / `tests/tts_premium.test.js`
 - [ ] Paid Tier Infrastructure — subscription management logic, feature toggles
+  - Stub + tests scaffolded in `src/subscription/index.js` / `tests/subscription.test.js`
 
 ---
 
@@ -34,20 +36,25 @@
 - Advanced Hazard Mapping
   - [x] Develop AI for hazard detection and awareness.
   - [ ] Map hazardous zones in real-time using inputs.
+    - Stub + tests scaffolded in `src/hazard_detection/realtime.js` / `tests/hazard_realtime.test.js`
 - TTS Premium Voices
   - [ ] Integrate diverse voice options.
+    - Stub + tests scaffolded in `src/tts/premium.js` / `tests/tts_premium.test.js`
   - [ ] Optimize voice quality for premium users.
 - Paid Tier Infrastructure
   - [ ] Develop subscription management logic.
+    - Stub + tests scaffolded in `src/subscription/index.js` / `tests/subscription.test.js`
   - [ ] Test paid and dynamic feature toggles.
 
 ### Phase 3: Multi-Agent Orchestration
 **Focus Areas:**
 - Web/Desktop Integration
   - [ ] Ensure desktop application syncs user data.
+    - Stub + tests scaffolded in `src/sync/index.js` / `tests/sync.test.js`
   - [ ] Enable accessibility across multiple devices.
 - Multi-Device State Sync
   - [ ] Establish real-time sync mechanisms.
+    - Stub + tests scaffolded in `src/sync/index.js` / `tests/sync.test.js`
   - [ ] Optimize performance for state persistence across platforms.
 
 ### Future Milestones
