@@ -22,6 +22,9 @@ const {
   writeFile,
   createBranch,
   createPullRequest,
+  requestReviewers,
+  getPullRequestChecks,
+  mergePullRequest,
 } = await import('../src/github_integration/index.js');
 
 // ---------------------------------------------------------------------------
@@ -39,6 +42,12 @@ function buildRestMocks() {
     },
     pulls: {
       create: jest.fn(),
+      requestReviewers: jest.fn(),
+      get: jest.fn(),
+      merge: jest.fn(),
+    },
+    checks: {
+      listForRef: jest.fn(),
     },
   };
 }
@@ -248,5 +257,176 @@ describe('createPullRequest', () => {
 
     const callArg = mockOctokit.rest.pulls.create.mock.calls[0][0];
     expect(callArg.body).toBe('');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// requestReviewers
+// ---------------------------------------------------------------------------
+describe('requestReviewers', () => {
+  it('requests individual reviewers for a pull request', async () => {
+    const prData = { number: 7, requested_reviewers: [{ login: 'alice' }] };
+    mockOctokit.rest.pulls.requestReviewers.mockResolvedValue({ data: prData });
+
+    const result = await requestReviewers(mockOctokit, 'owner', 'repo', 7, ['alice']);
+
+    expect(mockOctokit.rest.pulls.requestReviewers).toHaveBeenCalledWith({
+      owner: 'owner',
+      repo: 'repo',
+      pull_number: 7,
+      reviewers: ['alice'],
+      team_reviewers: [],
+    });
+    expect(result).toBe(prData);
+  });
+
+  it('requests team reviewers for a pull request', async () => {
+    mockOctokit.rest.pulls.requestReviewers.mockResolvedValue({ data: {} });
+
+    await requestReviewers(mockOctokit, 'owner', 'repo', 3, [], ['core-team']);
+
+    const callArg = mockOctokit.rest.pulls.requestReviewers.mock.calls[0][0];
+    expect(callArg.team_reviewers).toEqual(['core-team']);
+    expect(callArg.reviewers).toEqual([]);
+  });
+
+  it('defaults both reviewer lists to empty arrays', async () => {
+    mockOctokit.rest.pulls.requestReviewers.mockResolvedValue({ data: {} });
+
+    await requestReviewers(mockOctokit, 'owner', 'repo', 5);
+
+    const callArg = mockOctokit.rest.pulls.requestReviewers.mock.calls[0][0];
+    expect(callArg.reviewers).toEqual([]);
+    expect(callArg.team_reviewers).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getPullRequestChecks
+// ---------------------------------------------------------------------------
+describe('getPullRequestChecks', () => {
+  it('returns success state when all checks are completed successfully', async () => {
+    mockOctokit.rest.pulls.get.mockResolvedValue({
+      data: { head: { sha: 'abc123' } },
+    });
+    mockOctokit.rest.checks.listForRef.mockResolvedValue({
+      data: {
+        check_runs: [
+          { status: 'completed', conclusion: 'success' },
+          { status: 'completed', conclusion: 'success' },
+        ],
+      },
+    });
+
+    const result = await getPullRequestChecks(mockOctokit, 'owner', 'repo', 10);
+
+    expect(mockOctokit.rest.pulls.get).toHaveBeenCalledWith({
+      owner: 'owner',
+      repo: 'repo',
+      pull_number: 10,
+    });
+    expect(mockOctokit.rest.checks.listForRef).toHaveBeenCalledWith({
+      owner: 'owner',
+      repo: 'repo',
+      ref: 'abc123',
+    });
+    expect(result.state).toBe('success');
+    expect(result.checks).toHaveLength(2);
+  });
+
+  it('returns failure state when any check has failed', async () => {
+    mockOctokit.rest.pulls.get.mockResolvedValue({
+      data: { head: { sha: 'deadbeef' } },
+    });
+    mockOctokit.rest.checks.listForRef.mockResolvedValue({
+      data: {
+        check_runs: [
+          { status: 'completed', conclusion: 'success' },
+          { status: 'completed', conclusion: 'failure' },
+        ],
+      },
+    });
+
+    const result = await getPullRequestChecks(mockOctokit, 'owner', 'repo', 11);
+
+    expect(result.state).toBe('failure');
+  });
+
+  it('returns pending state when checks are still running', async () => {
+    mockOctokit.rest.pulls.get.mockResolvedValue({
+      data: { head: { sha: 'cafebabe' } },
+    });
+    mockOctokit.rest.checks.listForRef.mockResolvedValue({
+      data: {
+        check_runs: [
+          { status: 'in_progress', conclusion: null },
+        ],
+      },
+    });
+
+    const result = await getPullRequestChecks(mockOctokit, 'owner', 'repo', 12);
+
+    expect(result.state).toBe('pending');
+  });
+
+  it('returns pending state when there are no checks', async () => {
+    mockOctokit.rest.pulls.get.mockResolvedValue({
+      data: { head: { sha: 'f00d' } },
+    });
+    mockOctokit.rest.checks.listForRef.mockResolvedValue({
+      data: { check_runs: [] },
+    });
+
+    const result = await getPullRequestChecks(mockOctokit, 'owner', 'repo', 13);
+
+    expect(result.state).toBe('pending');
+    expect(result.checks).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// mergePullRequest
+// ---------------------------------------------------------------------------
+describe('mergePullRequest', () => {
+  it('merges a pull request with the default merge method', async () => {
+    const mergeData = { sha: 'mergesha', merged: true, message: 'Merged' };
+    mockOctokit.rest.pulls.merge.mockResolvedValue({ data: mergeData });
+
+    const result = await mergePullRequest(mockOctokit, 'owner', 'repo', 7);
+
+    expect(mockOctokit.rest.pulls.merge).toHaveBeenCalledWith({
+      owner: 'owner',
+      repo: 'repo',
+      pull_number: 7,
+      merge_method: 'merge',
+    });
+    expect(result).toBe(mergeData);
+  });
+
+  it('merges using squash method when specified', async () => {
+    mockOctokit.rest.pulls.merge.mockResolvedValue({ data: {} });
+
+    await mergePullRequest(mockOctokit, 'owner', 'repo', 8, 'squash');
+
+    const callArg = mockOctokit.rest.pulls.merge.mock.calls[0][0];
+    expect(callArg.merge_method).toBe('squash');
+  });
+
+  it('includes commit_title when provided', async () => {
+    mockOctokit.rest.pulls.merge.mockResolvedValue({ data: {} });
+
+    await mergePullRequest(mockOctokit, 'owner', 'repo', 9, 'squash', 'My squash commit');
+
+    const callArg = mockOctokit.rest.pulls.merge.mock.calls[0][0];
+    expect(callArg.commit_title).toBe('My squash commit');
+  });
+
+  it('omits commit_title when not provided', async () => {
+    mockOctokit.rest.pulls.merge.mockResolvedValue({ data: {} });
+
+    await mergePullRequest(mockOctokit, 'owner', 'repo', 10);
+
+    const callArg = mockOctokit.rest.pulls.merge.mock.calls[0][0];
+    expect(callArg.commit_title).toBeUndefined();
   });
 });
