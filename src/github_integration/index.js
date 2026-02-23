@@ -119,6 +119,20 @@ export async function createBranch(octokit, owner, repo, branchName, fromRef) {
 }
 
 /**
+ * Lists pull requests for a repository.
+ *
+ * @param {Octokit} octokit - Authenticated Octokit instance
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {string} [state='all'] - Filter by state: 'open', 'closed', or 'all'
+ * @returns {Promise<Array>} Array of pull request objects, each with number, title, and state
+ */
+export async function listPullRequests(octokit, owner, repo, state = 'all') {
+  const { data } = await octokit.rest.pulls.list({ owner, repo, state });
+  return data.map(({ number, title, state: prState }) => ({ number, title, state: prState }));
+}
+
+/**
  * Creates a pull request.
  *
  * @param {Octokit} octokit - Authenticated Octokit instance

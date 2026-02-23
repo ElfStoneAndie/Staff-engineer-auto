@@ -21,6 +21,7 @@ const {
   readFile,
   writeFile,
   createBranch,
+  listPullRequests,
   createPullRequest,
 } = await import('../src/github_integration/index.js');
 
@@ -39,6 +40,7 @@ function buildRestMocks() {
     },
     pulls: {
       create: jest.fn(),
+      list: jest.fn(),
     },
   };
 }
@@ -209,6 +211,43 @@ describe('createBranch', () => {
       sha: 'deadbeef',
     });
     expect(result).toBe(refData);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// listPullRequests
+// ---------------------------------------------------------------------------
+describe('listPullRequests', () => {
+  it('returns mapped pull request objects with default state all', async () => {
+    const rawPRs = [
+      { number: 1, title: 'First PR', state: 'open', html_url: 'https://example.com' },
+      { number: 2, title: 'Second PR', state: 'closed', html_url: 'https://example.com' },
+    ];
+    mockOctokit.rest.pulls.list.mockResolvedValue({ data: rawPRs });
+
+    const result = await listPullRequests(mockOctokit, 'owner', 'repo');
+
+    expect(mockOctokit.rest.pulls.list).toHaveBeenCalledWith({
+      owner: 'owner',
+      repo: 'repo',
+      state: 'all',
+    });
+    expect(result).toEqual([
+      { number: 1, title: 'First PR', state: 'open' },
+      { number: 2, title: 'Second PR', state: 'closed' },
+    ]);
+  });
+
+  it('passes the provided state filter to the API', async () => {
+    mockOctokit.rest.pulls.list.mockResolvedValue({ data: [] });
+
+    await listPullRequests(mockOctokit, 'owner', 'repo', 'open');
+
+    expect(mockOctokit.rest.pulls.list).toHaveBeenCalledWith({
+      owner: 'owner',
+      repo: 'repo',
+      state: 'open',
+    });
   });
 });
 
