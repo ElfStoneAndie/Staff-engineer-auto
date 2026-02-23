@@ -1,3 +1,7 @@
+## Architecture Notes
+- **Runtime**: Node.js >= 20 (required by Jest 30 and @octokit packages)
+- **CI**: GitHub Actions using `actions/checkout@v4` and `actions/setup-node@v4` with Node.js 20
+
 ## Roadmap
 ### Phase 1: MVP ✅ In Progress
 **Focus Areas:**
