@@ -141,3 +141,37 @@ export async function createPullRequest(octokit, owner, repo, title, head, base,
   });
   return data;
 }
+
+/**
+ * Lists pull requests for a repository.
+ *
+ * @param {Octokit} octokit - Authenticated Octokit instance
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {string} [state='open'] - Pull request state: 'open', 'closed', or 'all'
+ * @returns {Promise<Array>} Array of pull request objects
+ */
+export async function getPullRequests(octokit, owner, repo, state = 'open') {
+  const { data } = await octokit.rest.pulls.list({ owner, repo, state });
+  return data;
+}
+
+/**
+ * Merges a pull request.
+ *
+ * @param {Octokit} octokit - Authenticated Octokit instance
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {number} pullNumber - Pull request number
+ * @param {string} [mergeMethod='merge'] - Merge method: 'merge', 'squash', or 'rebase'
+ * @returns {Promise<object>} Merge result data
+ */
+export async function mergePullRequest(octokit, owner, repo, pullNumber, mergeMethod = 'merge') {
+  const { data } = await octokit.rest.pulls.merge({
+    owner,
+    repo,
+    pull_number: pullNumber,
+    merge_method: mergeMethod,
+  });
+  return data;
+}

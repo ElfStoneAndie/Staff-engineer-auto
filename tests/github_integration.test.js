@@ -22,6 +22,8 @@ const {
   writeFile,
   createBranch,
   createPullRequest,
+  getPullRequests,
+  mergePullRequest,
 } = await import('../src/github_integration/index.js');
 
 // ---------------------------------------------------------------------------
@@ -39,6 +41,8 @@ function buildRestMocks() {
     },
     pulls: {
       create: jest.fn(),
+      list: jest.fn(),
+      merge: jest.fn(),
     },
   };
 }
@@ -248,5 +252,69 @@ describe('createPullRequest', () => {
 
     const callArg = mockOctokit.rest.pulls.create.mock.calls[0][0];
     expect(callArg.body).toBe('');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getPullRequests
+// ---------------------------------------------------------------------------
+describe('getPullRequests', () => {
+  it('returns list of pull requests with default state open', async () => {
+    const prs = [{ number: 1, title: 'PR 1' }, { number: 2, title: 'PR 2' }];
+    mockOctokit.rest.pulls.list.mockResolvedValue({ data: prs });
+
+    const result = await getPullRequests(mockOctokit, 'owner', 'repo');
+
+    expect(mockOctokit.rest.pulls.list).toHaveBeenCalledWith({
+      owner: 'owner',
+      repo: 'repo',
+      state: 'open',
+    });
+    expect(result).toBe(prs);
+  });
+
+  it('passes the provided state to the API', async () => {
+    mockOctokit.rest.pulls.list.mockResolvedValue({ data: [] });
+
+    await getPullRequests(mockOctokit, 'owner', 'repo', 'closed');
+
+    expect(mockOctokit.rest.pulls.list).toHaveBeenCalledWith({
+      owner: 'owner',
+      repo: 'repo',
+      state: 'closed',
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// mergePullRequest
+// ---------------------------------------------------------------------------
+describe('mergePullRequest', () => {
+  it('merges a pull request with default merge method', async () => {
+    const mergeData = { sha: 'abc123', merged: true, message: 'Pull Request successfully merged' };
+    mockOctokit.rest.pulls.merge.mockResolvedValue({ data: mergeData });
+
+    const result = await mergePullRequest(mockOctokit, 'owner', 'repo', 42);
+
+    expect(mockOctokit.rest.pulls.merge).toHaveBeenCalledWith({
+      owner: 'owner',
+      repo: 'repo',
+      pull_number: 42,
+      merge_method: 'merge',
+    });
+    expect(result).toBe(mergeData);
+  });
+
+  it('passes the provided merge method to the API', async () => {
+    mockOctokit.rest.pulls.merge.mockResolvedValue({ data: {} });
+
+    await mergePullRequest(mockOctokit, 'owner', 'repo', 7, 'squash');
+
+    expect(mockOctokit.rest.pulls.merge).toHaveBeenCalledWith({
+      owner: 'owner',
+      repo: 'repo',
+      pull_number: 7,
+      merge_method: 'squash',
+    });
   });
 });
