@@ -5,10 +5,13 @@
 - [x] Architecture & UI design guidelines documented
 - [x] GitHub Integration module (`src/github_integration/`) — PAT & App auth, file CRUD, branch & PR management, fully tested
 - [x] Navigation Core module (`src/navigation/`) — route generation, randomised paths, GPS compliance, fully tested
+- [x] Core Voice AI (TTS) — `src/tts/` — basic TTS prompt generation, voice-guided navigation prompts, fully tested
+- [x] CarPlay UI Compliance — `src/carplay/` — route validation, screen descriptor builder, user-flow validation, fully tested
 
-### Up Next (Phase 1 remaining)
-- [ ] Core Voice AI (TTS) — basic TTS functionality and voice-guided prompts
-- [ ] CarPlay UI Compliance — compliant user flows and Apple guideline testing
+### Up Next (Phase 2)
+- [ ] Advanced Hazard Mapping (scaffolded in `src/hazard_detection/`) — integrate real-time inputs and AI awareness
+- [ ] TTS Premium Voices — diverse voice options and optimised voice quality
+- [ ] Paid Tier Infrastructure — subscription management and dynamic feature toggles
 
 ---
 
@@ -20,11 +23,11 @@
   - [x] Integrate randomized route paths.
   - [x] Establish GPS compliance.
 - Core Voice AI (TTS-Based Guidance)
-  - [ ] Add basic TTS functionality.
-  - [ ] Generate voice-guided navigation prompts.
+  - [x] Add basic TTS functionality.
+  - [x] Generate voice-guided navigation prompts.
 - CarPlay UI Compliance
-  - [ ] Design compliant user flows.
-  - [ ] Test for adherence to Apple guidelines.
+  - [x] Design compliant user flows.
+  - [x] Test for adherence to Apple guidelines.
 
 ### Phase 2: Premium Expansion
 **Focus Areas:**
