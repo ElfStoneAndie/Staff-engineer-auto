@@ -5,10 +5,13 @@
 - [x] Architecture & UI design guidelines documented
 - [x] GitHub Integration module (`src/github_integration/`) — PAT & App auth, file CRUD, branch & PR management, fully tested
 - [x] Navigation Core module (`src/navigation/`) — route generation, randomised paths, GPS compliance, fully tested
+- [x] Core Voice AI (TTS) module (`src/tts/`) — prompt generation for turns, arrivals, recalculation, speed warnings, fully tested
+- [x] CarPlay UI Compliance module (`src/carplay/`) — route validation, screen descriptor builder, user flow validator, fully tested
+- [x] Hazard Detection module scaffold (`src/hazard_detection/`) — zone detection, multi-zone filtering, nearest-hazard lookup, fully tested
 
-### Up Next (Phase 1 remaining)
-- [ ] Core Voice AI (TTS) — basic TTS functionality and voice-guided prompts
-- [ ] CarPlay UI Compliance — compliant user flows and Apple guideline testing
+### Up Next (Phase 2)
+- [ ] TTS Premium Voices — integrate diverse voice options, optimise voice quality
+- [ ] Paid Tier Infrastructure — subscription management logic, feature toggles
 
 ---
 
@@ -20,16 +23,16 @@
   - [x] Integrate randomized route paths.
   - [x] Establish GPS compliance.
 - Core Voice AI (TTS-Based Guidance)
-  - [ ] Add basic TTS functionality.
-  - [ ] Generate voice-guided navigation prompts.
+  - [x] Add basic TTS functionality.
+  - [x] Generate voice-guided navigation prompts.
 - CarPlay UI Compliance
-  - [ ] Design compliant user flows.
-  - [ ] Test for adherence to Apple guidelines.
+  - [x] Design compliant user flows.
+  - [x] Test for adherence to Apple guidelines.
 
 ### Phase 2: Premium Expansion
 **Focus Areas:**
 - Advanced Hazard Mapping
-  - [ ] Develop AI for hazard detection and awareness.
+  - [x] Develop AI for hazard detection and awareness.
   - [ ] Map hazardous zones in real-time using inputs.
 - TTS Premium Voices
   - [ ] Integrate diverse voice options.
