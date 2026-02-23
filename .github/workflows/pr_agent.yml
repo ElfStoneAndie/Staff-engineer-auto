@@ -1,0 +1,35 @@
+name: PR Agent
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: pr-agent-${{ github.event.pull_request.number || 'scheduled' }}
+  cancel-in-progress: true
+
+jobs:
+  pr-agent:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run PR agent
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/pr_agent.py
