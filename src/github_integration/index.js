@@ -141,3 +141,77 @@ export async function createPullRequest(octokit, owner, repo, title, head, base,
   });
   return data;
 }
+
+/**
+ * Requests reviewers for a pull request.
+ *
+ * @param {Octokit} octokit - Authenticated Octokit instance
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {number} pullNumber - Pull request number
+ * @param {string[]} [reviewers=[]] - GitHub usernames to request reviews from
+ * @param {string[]} [teamReviewers=[]] - Team slugs to request reviews from
+ * @returns {Promise<object>} Updated pull request data
+ */
+export async function requestReviewers(octokit, owner, repo, pullNumber, reviewers = [], teamReviewers = []) {
+  const { data } = await octokit.rest.pulls.requestReviewers({
+    owner,
+    repo,
+    pull_number: pullNumber,
+    reviewers,
+    team_reviewers: teamReviewers,
+  });
+  return data;
+}
+
+/**
+ * Retrieves the combined check-run status for a pull request's head commit.
+ *
+ * @param {Octokit} octokit - Authenticated Octokit instance
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {number} pullNumber - Pull request number
+ * @returns {Promise<{state: string, checks: Array}>} Combined status and individual check runs
+ */
+export async function getPullRequestChecks(octokit, owner, repo, pullNumber) {
+  const { data: pr } = await octokit.rest.pulls.get({ owner, repo, pull_number: pullNumber });
+  const ref = pr.head.sha;
+  const { data } = await octokit.rest.checks.listForRef({ owner, repo, ref });
+  const checks = data.check_runs;
+  const allSuccess = checks.length > 0 && checks.every(
+    (c) => c.status === 'completed' && c.conclusion === 'success',
+  );
+  const anyFailure = checks.some((c) => c.conclusion === 'failure');
+  let state;
+  if (allSuccess) {
+    state = 'success';
+  } else if (anyFailure) {
+    state = 'failure';
+  } else {
+    state = 'pending';
+  }
+  return { state, checks };
+}
+
+/**
+ * Merges a pull request.
+ *
+ * @param {Octokit} octokit - Authenticated Octokit instance
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {number} pullNumber - Pull request number
+ * @param {string} [mergeMethod='merge'] - Merge method: 'merge', 'squash', or 'rebase'
+ * @param {string} [commitTitle] - Title for the merge commit (optional)
+ * @returns {Promise<object>} Merge result data
+ */
+export async function mergePullRequest(octokit, owner, repo, pullNumber, mergeMethod = 'merge', commitTitle) {
+  const params = {
+    owner,
+    repo,
+    pull_number: pullNumber,
+    merge_method: mergeMethod,
+  };
+  if (commitTitle) params.commit_title = commitTitle;
+  const { data } = await octokit.rest.pulls.merge(params);
+  return data;
+}
