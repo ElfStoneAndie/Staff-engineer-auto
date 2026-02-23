@@ -5,6 +5,7 @@
 - [x] Architecture & UI design guidelines documented
 - [x] GitHub Integration module (`src/github_integration/`) — PAT & App auth, file CRUD, branch & PR management, fully tested
 - [x] Navigation Core module (`src/navigation/`) — route generation, randomised paths, GPS compliance, fully tested
+- [x] Hazard Detection module (`src/hazard_detection/`) — hazard types, coordinate/route-based detection, voice warning generation, fully tested
 
 ### Up Next (Phase 1 remaining)
 - [ ] Core Voice AI (TTS) — basic TTS functionality and voice-guided prompts
@@ -29,7 +30,7 @@
 ### Phase 2: Premium Expansion
 **Focus Areas:**
 - Advanced Hazard Mapping
-  - [ ] Develop AI for hazard detection and awareness.
+  - [x] Develop AI for hazard detection and awareness.
   - [ ] Map hazardous zones in real-time using inputs.
 - TTS Premium Voices
   - [ ] Integrate diverse voice options.
