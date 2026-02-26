@@ -9,6 +9,8 @@
 - [x] CarPlay UI Compliance module (`src/carplay/`) — route validation, screen descriptor builder, user flow validator, fully tested
 - [x] Hazard Detection module scaffold (`src/hazard_detection/`) — zone detection, multi-zone filtering, nearest-hazard lookup, fully tested
 
+- [x] Loop Generator module (`src/loop_generator/`) — UltraOmegaLoopGenerator reference integration; `createLoopSpec`, `validateLoop`, `generateSectorWaypoints`, `isWithinTargetLength`; reusable for Hey Marley Architect/Voice/QA agents; fully tested
+
 ### Up Next (Phase 2)
 - [ ] TTS Premium Voices — integrate diverse voice options, optimise voice quality
 - [ ] Paid Tier Infrastructure — subscription management logic, feature toggles
