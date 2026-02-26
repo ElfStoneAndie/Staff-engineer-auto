@@ -8,6 +8,8 @@
 - [x] Core Voice AI (TTS) module (`src/tts/`) — prompt generation for turns, arrivals, recalculation, speed warnings, fully tested
 - [x] CarPlay UI Compliance module (`src/carplay/`) — route validation, screen descriptor builder, user flow validator, fully tested
 - [x] Hazard Detection module scaffold (`src/hazard_detection/`) — zone detection, multi-zone filtering, nearest-hazard lookup, fully tested
+- [x] Multi-Agent Orchestration module (`src/orchestration/`) — runParallel, runSequential, buildNavigationPipeline, fully tested
+- [x] Core AI Design & Autonomy Plan — high-level architecture diagram, module breakdown, task sequence documented in `docs/architecture.md`
 
 ### Up Next (Phase 2)
 - [ ] TTS Premium Voices — integrate diverse voice options, optimise voice quality
@@ -43,6 +45,11 @@
 
 ### Phase 3: Multi-Agent Orchestration
 **Focus Areas:**
+- Core AI Design & Autonomy
+  - [x] Design multi-agent orchestration architecture.
+  - [x] Implement `runParallel` and `runSequential` task runners.
+  - [x] Implement `buildNavigationPipeline` integrating all specialist agents.
+  - [x] Document high-level architecture diagram, module breakdown, and task sequence.
 - Web/Desktop Integration
   - [ ] Ensure desktop application syncs user data.
   - [ ] Enable accessibility across multiple devices.

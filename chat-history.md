@@ -1160,3 +1160,49 @@ x. Deploy agents: Code agents in agents/ as Swift classes.y. Enable CI: Set up .
             request.requestsAlternateRoutes = false        }                // Step 3: Apply preference bias from driver profile         if let profile = continuityService.currentDriverProfile, MonetizationService.isPaidTierActive {            applyPreferenceBias        }                // Step 4: Fetch weather and adjust         let weather = try await fetchWeather        applyWeatherAdjustment                // Step 5: Calculate directions        let response = try await directions.calculate        guard let route = response.routes.first else {            throw NavigationError.noRouteFound        }                // Step 6: Enrich with hazards, POIs, residential validation        let enriched = try await enrichRoute                // Step 7: Final QA validation        let validation = QAAgent.validate        if !validation.isValid {            halt            throw NavigationError.validationFailed        }                // Step 8: Commit to continuity & start navigation        currentRoute = enriched        navigationStatus = .active        continuityService.logDecision, length: \(
  8:00 AMPage 450 of 450
 
+
+---
+
+## Step 3: Core AI Design & Autonomy Plan
+
+**Date:** 2026-02-23
+
+### Summary
+
+Designed and implemented the multi-agent orchestration architecture for the Staff Engineer Auto AI system.
+
+### Deliverables
+
+#### 1. High-Level Architecture
+
+The system is structured in layers:
+
+- **Orchestration Layer** (`src/orchestration/`): Coordinates specialist agents via `runParallel`, `runSequential`, and `buildNavigationPipeline`.
+- **Specialist Agents**: NavigationAgent, CarPlayAgent, TTSAgent, HazardDetectionAgent — each backed by an existing module.
+- **GitHub Integration** (`src/github_integration/`): Autonomous branch, file, and PR management for CI/CD.
+
+#### 2. Module Breakdown
+
+| Module | Role |
+|--------|------|
+| `src/orchestration/` | Multi-agent task runner and pipeline builder |
+| `src/navigation/` | Route generation and GPS compliance |
+| `src/tts/` | Voice-guided navigation prompts |
+| `src/carplay/` | CarPlay/MapKit compliance validation |
+| `src/hazard_detection/` | AI-driven hazard zone detection |
+| `src/github_integration/` | GitHub API automation (branch, file, PR) |
+
+#### 3. Task Sequence
+
+1. Create feature branch via GitHub Integration.
+2. Run navigation pipeline (parallel): NavigationAgent, CarPlayAgent, TTSAgent, HazardDetectionAgent.
+3. Commit generated artefacts via GitHub Integration.
+4. Run CI/CD validation sequentially: CarPlay compliance, GPS validation, hazard audit.
+5. Open Pull Request via GitHub Integration.
+
+### Code Changes
+
+- Added `src/orchestration/index.js` — `runParallel`, `runSequential`, `buildNavigationPipeline`
+- Added `tests/orchestration.test.js` — 18 passing tests
+- Updated `docs/architecture.md` — full diagram, module breakdown, task sequence
+- Updated `MASTER_STATE.md` — Phase 3 checklist items
