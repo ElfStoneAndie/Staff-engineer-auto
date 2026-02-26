@@ -5,7 +5,9 @@
   "type": "module",
   "main": "src/github_integration/index.js",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:integration": "node --experimental-vm-modules node_modules/.bin/jest tests/github_integration.test.js",
+    "test:ui": "node --experimental-vm-modules node_modules/.bin/jest tests/navigation.test.js"
   },
   "dependencies": {
     "@octokit/app": "^16.1.2",
