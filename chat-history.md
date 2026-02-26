@@ -1160,3 +1160,184 @@ x. Deploy agents: Code agents in agents/ as Swift classes.y. Enable CI: Set up .
             request.requestsAlternateRoutes = false        }                // Step 3: Apply preference bias from driver profile         if let profile = continuityService.currentDriverProfile, MonetizationService.isPaidTierActive {            applyPreferenceBias        }                // Step 4: Fetch weather and adjust         let weather = try await fetchWeather        applyWeatherAdjustment                // Step 5: Calculate directions        let response = try await directions.calculate        guard let route = response.routes.first else {            throw NavigationError.noRouteFound        }                // Step 6: Enrich with hazards, POIs, residential validation        let enriched = try await enrichRoute                // Step 7: Final QA validation        let validation = QAAgent.validate        if !validation.isValid {            halt            throw NavigationError.validationFailed        }                // Step 8: Commit to continuity & start navigation        currentRoute = enriched        navigationStatus = .active        continuityService.logDecision, length: \(
  8:00 AMPage 450 of 450
 
+
+---
+
+## Step 4: Feature Completion Prompts
+
+*Generated: 2026-02-23 — stored here for team reference and autonomous execution.*
+
+The following Copilot prompts are sequenced for ease of autonomous development. Each prompt targets a specific pending feature from the roadmap and includes the target file/folder, required function stubs, testing scaffold, and CI/CD hooks.
+
+---
+
+### Prompt 1 — Real-Time Hazard Zone Mapping
+
+**Context:** Phase 2 Advanced Hazard Mapping. The static hazard detection module (`src/hazard_detection/`) is complete. This prompt scaffolds the live data layer.
+
+**Target:** `src/hazard_detection/realtime.js`
+
+**Copilot Prompt:**
+```
+Implement the two stub functions in src/hazard_detection/realtime.js:
+
+1. `fetchLiveHazardZones(apiKey, bounds)`:
+   - Make an authenticated HTTP GET request to the hazard data provider API using the provided apiKey.
+   - Pass the bounding box (north/south/east/west) as query parameters.
+   - Parse the JSON response and return an array of hazard zone objects with shape:
+     { centre: { lat, lng }, radiusKm: number, type: string }
+   - Throw descriptive errors for HTTP failures (non-2xx status codes).
+
+2. `subscribeToHazardUpdates(location, callback)`:
+   - Open a WebSocket (or SSE) connection to the hazard data stream endpoint.
+   - Filter incoming events to those within 50 km of the provided location using
+     haversineDistanceKm from src/navigation/index.js.
+   - Call the callback with the updated array of active hazard zones on each event.
+   - Return a { unsubscribe() } handle that closes the connection when called.
+
+Follow the JSDoc style already established in src/hazard_detection/index.js.
+Add integration tests in tests/hazard_realtime.test.js under the existing .todo placeholders.
+```
+
+**Testing Scaffold:** `tests/hazard_realtime.test.js` (stub tests added; fill in `.todo` items once the HTTP/WS transport is wired up)
+
+**CI/CD Hook:** The existing `npm test` step in `.github/workflows/ci.yml` picks up the new test file automatically. Add an environment secret `HAZARD_API_KEY` and reference it in the integration test with `process.env.HAZARD_API_KEY`.
+
+---
+
+### Prompt 2 — TTS Premium Voices
+
+**Context:** Phase 2 Premium Expansion. The core TTS engine (`src/tts/index.js`) is complete. This prompt wires in diverse, high-quality voice profiles for premium subscribers.
+
+**Target:** `src/tts/premium.js`
+
+**Copilot Prompt:**
+```
+Extend src/tts/premium.js to integrate with a real TTS synthesis API (e.g. Azure Cognitive
+Services Speech, Google Cloud TTS, or ElevenLabs):
+
+1. Add a `synthesise(text, voiceId)` async function that:
+   - Calls the TTS provider REST API with the given text and voice profile locale/name.
+   - Returns a Buffer containing the audio (MP3 or WAV) ready to be piped to AVSpeechSynthesizer
+     or an HTML5 <audio> element.
+   - Caches results by (text, voiceId) key to avoid redundant API calls.
+
+2. Extend `listPremiumVoices()` to merge voices fetched dynamically from the provider API
+   with the static fallback list — so new voices appear without a code deploy.
+
+3. Add `optimiseVoiceQuality(voiceId, settings)` accepting { rate, pitch, volume } overrides
+   and persisting them in the subscription user profile via src/subscription/index.js.
+
+All functions must have JSDoc comments matching the style in src/tts/index.js.
+Tests go in tests/tts_premium.test.js — use jest.unstable_mockModule to mock the provider SDK.
+```
+
+**Testing Scaffold:** `tests/tts_premium.test.js` (fully implemented; extend with `synthesise` tests once the provider client is mocked)
+
+**CI/CD Hook:** Add `TTS_API_KEY` as a repository secret. The existing `npm test` CI step covers the unit tests; add a separate `test:premium-tts` npm script for integration tests that require the live API.
+
+---
+
+### Prompt 3 — Paid Tier / Subscription Management
+
+**Context:** Phase 2 Paid Tier Infrastructure. Subscription scaffolding is in `src/subscription/index.js` using an in-memory store.
+
+**Target:** `src/subscription/index.js`
+
+**Copilot Prompt:**
+```
+Replace the in-memory Map in src/subscription/index.js with a persistent storage backend:
+
+1. Accept a `storage` adapter object as a module-level singleton (injected via
+   `initSubscriptionStore(adapter)`) with the interface:
+     { get(userId): Promise<Subscription|null>,
+       set(userId, sub): Promise<void> }
+   Provide a default in-memory adapter for tests and local development.
+
+2. Make `createSubscription`, `getSubscription`, `cancelSubscription`, and
+   `isFeatureEnabled` all async (returning Promises).
+
+3. Add a `upgradeTier(userId, newTier)` function that changes an existing subscription's
+   tier and records an `upgradedAt` timestamp.
+
+4. Add a `listFeatureFlags(tier)` helper that returns the full Set of feature names for a
+   given tier, used by the CarPlay UI to conditionally render premium menu items.
+
+Follow the JSDoc style in src/github_integration/index.js.
+Update tests/subscription.test.js accordingly — inject a fresh in-memory adapter in beforeEach.
+```
+
+**Testing Scaffold:** `tests/subscription.test.js` (fully implemented; update async/await signatures once storage is made persistent)
+
+**CI/CD Hook:** The existing `npm test` step covers unit tests. For end-to-end testing add a `test:integration` script that spins up a test database (e.g. SQLite via `better-sqlite3`) and runs the subscription flows against it.
+
+---
+
+### Prompt 4 — Multi-Device State Sync & Web/Desktop Integration
+
+**Context:** Phase 3 Multi-Agent Orchestration. The sync scaffold is in `src/sync/index.js` using an in-memory store with synchronous listener dispatch.
+
+**Target:** `src/sync/index.js`
+
+**Copilot Prompt:**
+```
+Wire src/sync/index.js to a real-time backend (e.g. Firebase Realtime Database, Supabase
+Realtime, or a custom WebSocket server):
+
+1. Add `initSyncBackend(config)` accepting a backend config object (url, apiKey).
+   Store the connection globally so that syncState/getState/subscribeToStateChanges use it.
+   Fall back to the in-memory store when no backend is configured (for tests).
+
+2. In `syncState(userId, state)`:
+   - Merge the incoming state with the existing persisted state (shallow merge) rather
+     than replacing it, so multiple devices can write different sub-keys concurrently.
+   - Broadcast the merged state to all active subscribers via the real-time channel.
+
+3. In `subscribeToStateChanges(userId, callback)`:
+   - Open a real-time channel subscription (WS/SSE) that fires the callback on remote
+     writes from other devices, not just local syncState calls.
+   - The returned unsubscribe handle must close the channel cleanly.
+
+4. Add `clearState(userId)` to support logout / account deletion flows.
+
+All functions must have JSDoc comments matching src/github_integration/index.js style.
+Tests in tests/sync.test.js should use jest.unstable_mockModule to mock the backend SDK,
+keeping all tests offline-capable.
+```
+
+**Testing Scaffold:** `tests/sync.test.js` (fully implemented; extend with backend mock tests once the real-time transport is chosen)
+
+**CI/CD Hook:** The existing `npm test` step covers unit tests. For end-to-end tests add a `test:integration` script. Add `SYNC_BACKEND_URL` and `SYNC_API_KEY` repository secrets. A future GitHub Actions matrix job can run integration tests against a staging Firebase/Supabase project on every push to `main`.
+
+---
+
+### Prompt 5 — CI/CD Pipeline Hardening (cross-cutting)
+
+**Context:** The current `.github/workflows/ci.yml` references `npm run test:integration` and `npm run test:ui` scripts that do not yet exist in `package.json`.
+
+**Target:** `.github/workflows/ci.yml` and `package.json`
+
+**Copilot Prompt:**
+```
+Update the CI pipeline to match the current project state and support future premium features:
+
+1. In package.json add placeholder scripts that exit 0 until implemented:
+     "test:integration": "echo 'Integration tests not yet configured' && exit 0",
+     "test:ui": "echo 'UI tests not yet configured' && exit 0"
+
+2. In .github/workflows/ci.yml:
+   - Upgrade actions/checkout to v4 and actions/setup-node to v4.
+   - Upgrade the Node.js version from '14' to '20'.
+   - Add a secrets block documenting the expected environment secrets:
+       HAZARD_API_KEY, TTS_API_KEY, SYNC_BACKEND_URL, SYNC_API_KEY
+   - Add a separate job `integration-tests` that runs only on pushes to `main` and
+     depends on the `test` job, so unit tests must pass before integration tests run.
+   - Cache node_modules using actions/cache keyed on package-lock.json hash.
+
+Keep all changes backwards-compatible with the existing unit test step.
+```
+
+**Testing Scaffold:** N/A (CI configuration change)
+
+**CI/CD Hook:** Self-referential — this prompt updates the CI pipeline itself.
+

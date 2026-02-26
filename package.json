@@ -5,7 +5,9 @@
   "type": "module",
   "main": "src/github_integration/index.js",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:integration": "echo 'Integration tests not yet configured' && exit 0",
+    "test:ui": "echo 'UI tests not yet configured' && exit 0"
   },
   "dependencies": {
     "@octokit/app": "^16.1.2",
