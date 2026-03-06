@@ -15,6 +15,8 @@
 - [x] Multi-Agent Orchestration module (`src/orchestration/`) — runParallel, runSequential, buildNavigationPipeline, fully tested
 - [x] Core AI Design & Autonomy Plan — high-level architecture diagram, module breakdown, task sequence documented in `docs/architecture.md`
 
+- [x] Loop Generator module (`src/loop_generator/`) — UltraOmegaLoopGenerator reference integration; `createLoopSpec`, `validateLoop`, `generateSectorWaypoints`, `isWithinTargetLength`; reusable for Hey Marley Architect/Voice/QA agents; fully tested
+
 ### Up Next (Phase 2)
 - [ ] TTS Premium Voices — integrate diverse voice options, optimise voice quality
 - [ ] Paid Tier Infrastructure — subscription management logic, feature toggles
