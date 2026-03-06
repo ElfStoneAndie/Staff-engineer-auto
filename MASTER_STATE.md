@@ -1,8 +1,12 @@
 ## Current Status
 
+### Dependencies
+- **Node.js:** `>=18` required (packages `@octokit/rest ^22`, `@octokit/app ^16`, and `jest ^30` all require Node.js 18 or later)
+
 ### Completed
 - [x] Repository scaffolding — `src/`, `tests/`, `docs/`, `config/`
 - [x] Architecture & UI design guidelines documented
+- [x] Node.js version dependency updated — minimum version raised from 14 to 18 to support current package requirements
 - [x] GitHub Integration module (`src/github_integration/`) — PAT & App auth, file CRUD, branch & PR management, fully tested
 - [x] Navigation Core module (`src/navigation/`) — route generation, randomised paths, GPS compliance, fully tested
 - [x] Core Voice AI (TTS) module (`src/tts/`) — prompt generation for turns, arrivals, recalculation, speed warnings, fully tested
